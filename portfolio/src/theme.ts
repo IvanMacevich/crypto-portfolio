@@ -1,21 +1,21 @@
-import { yellow } from '@mui/material/colors';
-import { createTheme } from '@mui/material/styles';
+import { grey } from "@mui/material/colors";
+import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: yellow[600],
-      light: yellow[200],
-      dark: yellow[800],
+      main: grey[800],
+      light: grey[200],
+      dark: grey[800],
     },
   },
   components: {
     MuiInputBase: {
       styleOverrides: {
         input: {
-          '&:-webkit-autofill': {
-            WebkitBoxShadow: 'inset 0 0 0 50px #3b3b3b !important',
+          "&:-webkit-autofill": {
+            WebkitBoxShadow: "inset 0 0 0 50px #3b3b3b !important",
           },
         },
       },
@@ -23,9 +23,11 @@ export const theme = createTheme({
 
     MuiTypography: {
       styleOverrides: {
-        root: {},
+        root: {
+          backgroundColor: grey[800],
+        },
         h6: {
-          textDecoration: 'none',
+          textDecoration: "none",
         },
       },
     },
