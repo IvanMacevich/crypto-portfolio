@@ -8,7 +8,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const url = "https://cors-anywhere.herokuapp.com/https://api.geniidata.com/api/1/brc20/balance?limit=20&offset=0&address=bc1qhgmu47f3kdqkqd03pctx89dt0rcyscchdxqlnm";
+      const url = "/api/1/brc20/balance?limit=20&offset=0&address=bc1qhgmu47f3kdqkqd03pctx89dt0rcyscchdxqlnm";
       const headers = {
         "accept": "application/json",
         "api-key": "142cf1b0-1ca7-11ee-bb5e-9d74c2e854ac",
