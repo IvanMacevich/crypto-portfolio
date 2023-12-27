@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import AddCoinModal from '../components/add-coin-modal.component';
 
 const CryptoInfo = () => {
     const [activities, setActivities] = useState(null);
@@ -30,6 +31,7 @@ const CryptoInfo = () => {
             ) : (
                 <p>Loading...</p>
             )}
+            <AddCoinModal />
         </div>
     );
 };
