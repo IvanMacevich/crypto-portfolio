@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Routes } from "react-router-dom";
-import CryptoInfo from './pages/crypto-info.page';
+import CryptoInfo from './app/portfolio/pages/crypto-info.page';
 import './App.css';
 
 const App: React.FC = () => {
