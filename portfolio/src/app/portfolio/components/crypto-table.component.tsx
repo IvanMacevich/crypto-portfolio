@@ -1,13 +1,19 @@
 import { Icon, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { DataGrid } from "@mui/x-data-grid";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import { db } from "../../../config/firebase/firebase-config";
 import { useAppDispatch } from "../../../store/store";
 import { fetchCoinInfo } from "../store/coin-info/coin-info.actions";
-import { selectCoinInfo } from "../store/coin-info/coin-info.selectors";
+import { useTicks } from "./use-tick.hook";
 
 interface TicksData {
   name: string;
@@ -23,61 +29,124 @@ const CryptoTable = () => {
   // const [coins, setCoins] = useState<CoinData[]>([]);
   const [coinsData, setCoinsData] = useState<TicksData[]>([]);
   const dispatch = useAppDispatch();
-  const coinInfo = useSelector(selectCoinInfo);
-  const userRef = doc(db, "user", "f0gc5oHPjgT0vJJSq03P");
+  const userRef = doc(db, "tick", "f0gc5oHPjgT0vJJSq03P");
+  const ticks = useTicks();
 
   useEffect(() => {
     getTicks();
+    // getUserId("f0gc5oHPjgT0vJJSq03P");
   }, []);
+
+  const getTicksByUserId = async (userId: any) => {
+    try {
+      const userRef = doc(db, "user", userId);
+      const userDoc = await getDoc(userRef);
+      console.log(userDoc.data());
+
+      if (userDoc.exists()) {
+        const tickQuery = query(
+          collection(db, "tick"),
+          where("userId", "==", userRef)
+        );
+        const tickSnapshot = await getDocs(tickQuery);
+        console.log(tickSnapshot);
+
+        if (!tickSnapshot.empty) {
+          const tickArray = tickSnapshot.docs.map((tickDoc) => tickDoc.data());
+          console.log(tickArray);
+          return tickArray;
+        }
+        return [];
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      throw error;
+    }
+  };
+
+  // const getTicks = async () => {
+  //   try {
+
+  //         const tickNames = ticksData.map((ticksData) => ticksData.name);
+  //         console.log(tickNames);
+  //         ticks.fetch(tickNames);
+  //         console.log(coinInfo);
+  //         const combinedData: TicksData[] = ticksData?.map((ticks) => {
+  //           const dynamicData = coinInfo.find((d) => d.tick === ticks.name);
+  //           if (dynamicData) {
+  //             return {
+  //               name: String(ticks.name),
+  //               buyingPrice: Number(ticks.buyingPrice),
+  //               curPrice: dynamicData.curPrice,
+  //               amountOf: dynamicData.amountVolume,
+  //               changePrice: dynamicData.changePrice,
+  //               marketCap: dynamicData.cap,
+  //               totalMinted: dynamicData.totalMinted,
+  //             };
+  //           }
+  //           return {
+  //             name: String(ticks.name),
+  //             buyingPrice: Number(ticks.buyingPrice),
+  //             curPrice: 0,
+  //             amountOf: 0,
+  //             changePrice: 0,
+  //             marketCap: "",
+  //             totalMinted: 0,
+  //           };
+  //         });
+
+  //         console.log(combinedData);
+  //         setCoinsData(combinedData);
+  //         console.log(coinsData);
+  //       }
+  //     }
+  //   } catch (err) {}
+  // };
 
   const getTicks = async () => {
     try {
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        console.log(userData.ticks);
-        if (userData.ticks) {
-          const tickPromises = userData.ticks.map(async (tick: any) => {
-            const tickDoc = await getDoc(tick);
-            return tickDoc.data();
-          });
-          const ticksData = await Promise.all(tickPromises);
-          console.log(ticksData);
-          const tickNames = ticksData.map((ticksData) => ticksData.name);
-          console.log(tickNames);
-          await fetchCoinData(tickNames);
-          console.log(coinInfo);
-          const combinedData: TicksData[] = ticksData.map((ticks) => {
-            const dynamicData = coinInfo.find((d) => d.tick === ticks.name);
-            if (dynamicData) {
-              return {
-                name: String(ticks.name),
-                buyingPrice: Number(ticks.buyingPrice),
-                curPrice: dynamicData.curPrice,
-                amountOf: dynamicData.amountVolume,
-                changePrice: dynamicData.changePrice,
-                marketCap: dynamicData.cap,
-                totalMinted: dynamicData.totalMinted,
-              };
-            }
-            return {
-              name: String(ticks.name),
-              buyingPrice: Number(ticks.buyingPrice),
-              curPrice: 0,
-              amountOf: 0,
-              changePrice: 0,
-              marketCap: "",
-              totalMinted: 0,
-            };
-          });
+      const ticksData = await getTicksByUserId("f0gc5oHPjgT0vJJSq03P");
+      const tickNames = ticksData?.map((ticksData) => String(ticksData.tick));
+      console.log(tickNames);
+      if (tickNames) {
+        ticks.fetch(tickNames);
+        console.log(ticks.data);
+      }
 
-          console.log(combinedData);
-          setCoinsData(combinedData);
-          console.log(coinsData);
-        }
+      if (ticksData) {
+        console.log("HIII");
+        const combinedData: TicksData[] = ticksData.map((ticks) => {
+          const dynamicData = ticks.data.find(
+            (d: any) => d.tick === ticks.tick
+          );
+          console.log(dynamicData);
+          if (dynamicData) {
+            console.log(dynamicData);
+            return {
+              name: String(ticks.tick),
+              buyingPrice: Number(ticks.buyingPrice),
+              curPrice: dynamicData.curPrice,
+              amountOf: dynamicData.amountVolume,
+              changePrice: dynamicData.changePrice,
+              marketCap: dynamicData.cap,
+              totalMinted: dynamicData.totalMinted,
+            };
+          }
+          return {
+            name: String(ticks.tick),
+            buyingPrice: Number(ticks.buyingPrice),
+            curPrice: 0,
+            amountOf: 0,
+            changePrice: 0,
+            marketCap: "",
+            totalMinted: 0,
+          };
+        });
+        console.log(combinedData);
       }
     } catch (err) {}
   };
+
   const fetchCoinData = async (tickNames: string[]) => {
     console.log(tickNames);
     await dispatch(fetchCoinInfo({ timeType: "day1", ticks: tickNames }));
