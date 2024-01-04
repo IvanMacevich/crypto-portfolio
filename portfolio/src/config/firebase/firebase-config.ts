@@ -1,5 +1,16 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "@firebase/firestore";
+import {
+	addDoc,
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	getFirestore,
+	query,
+	updateDoc,
+	where
+} from "@firebase/firestore";
+import { Tick } from "../../types/firestore.type";
 const firebaseConfig = {
 	apiKey: "AIzaSyDJuLbzJblIrRaTYDDKhtlgbkUqZh3RHm0",
 	authDomain: "brc-20-53178.firebaseapp.com",
@@ -12,4 +23,31 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore();
+
+export const addOrUpdateTick = async (tick: Tick) => {
+	const userRef = doc(db, "user", tick.userId);
+
+	const tickQuerySnapshot = await getDocs(
+		query(
+			collection(db, "tick"),
+			where("userId", "==", userRef),
+			where("tick", "==", tick.tick)
+		)
+	);
+	if (tickQuerySnapshot.empty) {
+		await addDoc(collection(db, "tick"), {
+			userId: userRef,
+			tick: tick.tick,
+			amount: tick.amount,
+			buyingPrice: tick.buyingPrice
+		});
+	} else {
+		const tickDoc = tickQuerySnapshot.docs[0];
+		await updateDoc(tickDoc.ref, {
+			amount: (tickDoc.data().amount || 0) + tick.amount,
+			buyingPrice: (tickDoc.data().amount + tick.buyingPrice) / 2
+		});
+	}
+};
+
 export default firebaseConfig;

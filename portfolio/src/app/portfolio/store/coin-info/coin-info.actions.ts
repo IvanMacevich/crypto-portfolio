@@ -28,3 +28,4 @@ export const fetchCoinInfo = createAsyncThunk<
     return rejectWithValue("Error while fetching coin info");
   }
 });
+
