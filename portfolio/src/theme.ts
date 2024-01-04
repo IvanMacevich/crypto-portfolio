@@ -9,6 +9,9 @@ export const theme = createTheme({
       light: grey[200],
       dark: grey[800],
     },
+    secondary: {
+      main: "#ebb94c",
+    },
   },
   components: {
     MuiInputBase: {
@@ -23,9 +26,6 @@ export const theme = createTheme({
 
     MuiTypography: {
       styleOverrides: {
-        root: {
-          backgroundColor: grey[800],
-        },
         h6: {
           textDecoration: "none",
         },

@@ -10,3 +10,4 @@ interface TickData {
     start: number;
     detail: Array<string>;
 }
+
