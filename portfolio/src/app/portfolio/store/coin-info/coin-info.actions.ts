@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { TickInfoList } from "../../../../types/tick-info.type";
 import { instance } from "../../../../config/api/axios.instance";
+import { TickInfoList } from "../../../../types/tick-info.type";
 
 export const fetchCoinInfo = createAsyncThunk<
   TickInfoList,
