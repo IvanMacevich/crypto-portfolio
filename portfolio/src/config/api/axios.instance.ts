@@ -6,8 +6,7 @@ const apiKey = process.env.REACT_APP_API_KEY;
 export const instance: AxiosInstance = axios.create({
     baseURL: baseURL,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${apiKey}`,
     },
   });
 

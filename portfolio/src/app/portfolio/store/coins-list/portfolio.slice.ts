@@ -1,15 +1,17 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { StateStatus } from "../../../../types/base-state.type";
 import { CoinsState } from "../../types/coins-state.type";
-import { fetchCoins } from "./portfolio.actions";
+import { fetchCoin, fetchCoins } from "./portfolio.actions";
 import { COINS } from "../../constants/actions.constants";
+import { TickData, TickInfo } from "../../../../types/tick-info.type";
 import { TickList } from "../../../../types/tick-list.type";
 
 const initialState: CoinsState = {
 	detail: [],
 	total: 0,
 	status: StateStatus.INIT,
-	error: null
+	error: null,
+	BTCPrice: 0,
 };
 
 const coinsSlice = createSlice({
@@ -17,19 +19,27 @@ const coinsSlice = createSlice({
 	initialState,
 	reducers: {},
 	extraReducers: (builder) => {
-		builder.addCase(fetchCoins.pending, state => {
+		builder.addCase(fetchCoins.pending, (state) => {
 			state.status = StateStatus.LOADING;
 			state.error = null;
 		});
-        builder.addCase(fetchCoins.fulfilled, (state, action: PayloadAction<TickList>) => {
-            state.status = StateStatus.SUCCESS;
-            state.detail = action.payload.data.detail;
-            state.total = action.payload.data.total;
-        });
+		builder.addCase(
+			fetchCoins.fulfilled,
+			(state, action: PayloadAction<TickData>) => {
+				state.status = StateStatus.SUCCESS;
+				state.BTCPrice = action.payload.BTCPrice;
+				state.detail = action.payload.list;
+			}
+		);
 		builder.addCase(fetchCoins.rejected, (state, action) => {
 			state.status = StateStatus.ERROR;
 			state.error = action.payload;
 		});
+
+		builder.addCase(fetchCoin.fulfilled, (state, action: PayloadAction<TickData>)=>{
+			state.BTCPrice = action.payload.BTCPrice;
+			state.detail = action.payload.list;
+		})
 	}
 });
 
