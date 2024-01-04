@@ -29,16 +29,25 @@ const coinsSlice = createSlice({
 				state.status = StateStatus.SUCCESS;
 				state.BTCPrice = action.payload.BTCPrice;
 				state.detail = action.payload.list;
+				// state.detail = [...state.detail, ...action.payload.list]
 			}
 		);
 		builder.addCase(fetchCoins.rejected, (state, action) => {
 			state.status = StateStatus.ERROR;
 			state.error = action.payload;
 		});
-
+		builder.addCase(fetchCoin.pending, (state)=>{
+			state.status = StateStatus.LOADING;
+			state.error = null;
+		})
 		builder.addCase(fetchCoin.fulfilled, (state, action: PayloadAction<TickData>)=>{
 			state.BTCPrice = action.payload.BTCPrice;
 			state.detail = action.payload.list;
+			state.status = StateStatus.SUCCESS;
+		})
+		builder.addCase(fetchCoin.rejected, (state, action)=>{
+			state.status = StateStatus.ERROR;
+			state.error = action.payload;
 		})
 	}
 });
