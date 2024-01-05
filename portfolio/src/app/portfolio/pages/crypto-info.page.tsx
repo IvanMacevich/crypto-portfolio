@@ -12,8 +12,15 @@ const CryptoInfo = () => {
 
   return (
     <div>
-      <Button onClick={handleModal}>Add Coin</Button>
       <CryptoTable></CryptoTable>
+      <Button
+        onClick={handleModal}
+        variant="contained"
+        color="secondary"
+        size="large"
+      >
+        Add Coin
+      </Button>
       {isModalOpen && <AddCoinModal onClose={handleModal} />}
     </div>
   );

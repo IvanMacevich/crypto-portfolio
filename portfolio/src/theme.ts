@@ -1,16 +1,18 @@
-import { grey } from "@mui/material/colors";
 import { createTheme } from "@mui/material/styles";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 
 export const theme = createTheme({
+  typography: {
+    fontFamily: "Roboto Mono, Helvetica, Arial, sans-serif",
+  },
+
   palette: {
     mode: "dark",
     primary: {
-      main: grey[800],
-      light: grey[200],
-      dark: grey[800],
+      main: "#FFFFFF",
     },
     secondary: {
-      main: "#ebb94c",
+      main: "#EBB94E",
     },
   },
   components: {
@@ -24,6 +26,19 @@ export const theme = createTheme({
       },
     },
 
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#3B3838",
+          borderRadius: 20,
+          fontSize: 20,
+        },
+        row: {
+          borderRadius: "8px", // или другой радиус скругления, который вам подходит
+          backgroundColor: "#fff1",
+        },
+      },
+    },
     MuiTypography: {
       styleOverrides: {
         h6: {

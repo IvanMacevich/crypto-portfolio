@@ -29,20 +29,43 @@ const CryptoTable = () => {
       {
         field: "name",
         headerName: "Coin",
-        width: 400,
+        width: 300,
         sortable: false,
         filterable: false,
+        renderCell: (params: any) => (
+          <Typography
+            sx={{ color: "#ebb94c", fontSize: "20px", fontWeight: "700" }}
+          >
+            {params.value}
+          </Typography>
+        ),
       },
-      { field: "buyingPrice", headerName: "Buing price", width: 400 },
-      { field: "curPrice", headerName: "Current price", width: 400 },
+      {
+        field: "buyingPrice",
+        headerName: "Buing price",
+        width: 300,
+        renderCell: (params: any) => <span>{params.value}$</span>,
+      },
+      {
+        field: "curPrice",
+        headerName: "Current price",
+        width: 300,
+        renderCell: (params: any) => <span>{params.value}$</span>,
+      },
       // { field: "amountOf", headerName: "Amount volume", width: 250 },
-      { field: "changePrice", headerName: "Change price", width: 450 },
+      {
+        field: "changePrice",
+        headerName: "Change price",
+        width: 300,
+        renderCell: (params: any) => <span>{params.value}$</span>,
+      },
       // { field: "marketCap", headerName: "Market Cap", width: 250 },
       // { field: "totalMinted", headerName: "Total minted", width: 250 },
       {
         field: "actions",
         headerName: "Actions",
         type: "actions",
+        width: 200,
         renderCell: (params: any) => (
           <IconButton>
             <Icon sx={{ color: "green" }}>+</Icon>
@@ -53,23 +76,26 @@ const CryptoTable = () => {
     []
   );
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    <Box sx={{ width: "100%", mt: 3, mb: 3 }}>
       <Typography
         variant="h3"
         component="h3"
         sx={{ textAlign: "center", mt: 3, mb: 3 }}
       >
-        Coins
+        BRC-20 COINS PORTFOLIO
       </Typography>
       {status === StateStatus.LOADING ? (
         <CircularProgress />
       ) : (
         <DataGrid
+          autoHeight
           columns={columns}
           rows={ticks.list}
           getRowId={(coins) => coins.name}
-          pageSizeOptions={[5]}
-          sx={{ backgroundColor: "#000000" }}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 25]}
           getRowSpacing={(params) => ({
             top: params.isFirstVisible ? 0 : 5,
             bottom: params.isLastVisible ? 0 : 5,
