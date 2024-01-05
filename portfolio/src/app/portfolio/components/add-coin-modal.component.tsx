@@ -1,19 +1,16 @@
 
-import { Box, Button, Input, List, ListItem, TextField, Typography, useTheme } from '@mui/material';
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { TickList } from '../../../types/tick-list.type';
-import { instance } from '../../../config/api/axios.instance';
-import { useDispatch } from 'react-redux';
+import { Box, Button, CircularProgress, List, ListItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useTheme } from '@mui/material';
+import React, { useState, useEffect, } from 'react';
+
 import { useAppDispatch } from '../../../store/store';
 import { useSelector } from 'react-redux';
-import { fetchCoin, fetchCoins } from '../store/coins-list/portfolio.actions';
-import { selectBtcPrice, selectCoinsList, selectStatus } from '../store/coins-list/portfolio.selectors';
-import { selectCoinInfo } from '../store/coin-info/coin-info.selectors';
-import { fetchCoinInfo } from '../store/coin-info/coin-info.actions';
+
 import { TickInfo } from '../../../types/tick-info.type';
 import { addOrUpdateTick } from '../../../config/firebase/firebase-config';
 import { StateStatus } from '../../../types/base-state.type';
+import { fetchUserCoins } from '../store/crypto-table/crypto-table.actions';
+import { fetchCoin, fetchCoins } from '../store/portfolio-store/portfolio.actions';
+import { selectBtcPrice, selectCoinsList, selectStatus } from '../store/portfolio-store/portfolio.selectors';
 
 interface AddCoinModalProps {
     onClose: () => void;
@@ -51,15 +48,19 @@ const AddCoinModal: React.FC<AddCoinModalProps> = ({ onClose }) => {
                 userId,
             };
             addOrUpdateTick(tickToAdd);
+            dispatch(fetchUserCoins({ timeType }));
             setSelectedCoin(null);
             setBuyingPrice('');
             setQuantity('');
             onClose();
+
+
         }
     };
 
     const handleSearchClick = async () => {
         await dispatch(fetchCoin({ timeType: timeType, tick }))
+        setSelectedCoin(null);
     }
     const handleAddCoin = (selectedTick: TickInfo) => {
         setSelectedCoin(selectedTick);
@@ -92,59 +93,64 @@ const AddCoinModal: React.FC<AddCoinModalProps> = ({ onClose }) => {
                 onChange={handleSearchChange}
             />
             <Button onClick={handleSearchClick}>Search</Button>
-            {(status === StateStatus.LOADING) ? (<h1>Loading</h1>) : (<div>
-                <List sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' }}>
-                    {coins.map((coin, index) => (
-                        <ListItem key={index} sx={styled.list} onClick={() => handleAddCoin(coin)}>
-                            <Typography color={theme.palette.secondary.main} sx={{ width: "100%", height: "100%", display: 'flex', alignItems: 'center' }}>
-                                {coin.tick}
-                            </Typography>
-                            <Box>
-                                <Typography color={theme.palette.primary.light}>
-                                    {coin.curPrice}
-                                </Typography>
-                                <Typography color={theme.palette.primary.light}>
-                                    sats/{coin.tick}
-                                </Typography>
-                                <Typography color={theme.palette.primary.light}>
-                                    {((coin.curPrice * btcPrice) / 1e8).toFixed(3)}$
-                                </Typography>
-                                <Typography color={theme.palette.primary.light}>
-                                    usd/{coin.tick}
-                                </Typography>
-                            </Box>
-                        </ListItem>
-                    ))}
-                </List>
+            <Box>
+                {(status === StateStatus.LOADING) ? (<CircularProgress />) : (
+                    <div>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{color:"#ebb94c"}}>Tick</TableCell>
+                                        <TableCell sx={{color:"#ebb94c"}}>sats/Tick</TableCell>
+                                        <TableCell sx={{color:"#ebb94c"}}>USD/Tick</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {coins.map((coin, index) => (
+                                        <TableRow
+                                            key={index}
+                                            hover
+                                            onClick={() => handleAddCoin(coin)}
+                                            selected={selectedCoin === coin}
+                                        >
+                                            <TableCell>{coin.tick}</TableCell>
+                                            <TableCell>{coin.curPrice}</TableCell>
+                                            <TableCell>{((coin.curPrice * btcPrice) / 1e8).toFixed(3)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
 
-                {selectedCoin && (
-                    <Box>
-                        <TextField
-                            id="standard-basic"
-                            label="Buying Price"
-                            variant="standard"
-                            sx={{ width: '100%' }}
-                            value={buyingPrice}
-                            onChange={(event) => setBuyingPrice(event.target.value)}
-                        />
-                        <TextField
-                            id="standard-basic"
-                            label="Quantity"
-                            variant="standard"
-                            sx={{ width: '100%' }}
-                            value={quantity}
-                            onChange={(event) => setQuantity(event.target.value)}
-                        />
-                        <Button onClick={handleSaveCoin}>Save Coin</Button>
-                    </Box>
+                        {selectedCoin && (
+                            <Box>
+                                <Typography sx={{color:"#ebb94c", textAlign:'left', marginTop:'10px'}}>{selectedCoin.tick}</Typography>
+                                <TextField
+                                    id="standard-basic"
+                                    label="Buying Price"
+                                    variant="standard"
+                                    sx={{ width: '100%' }}
+                                    value={buyingPrice}
+                                    onChange={(event) => setBuyingPrice(event.target.value)}
+                                />
+                                <TextField
+                                    id="standard-basic"
+                                    label="Quantity"
+                                    variant="standard"
+                                    sx={{ width: '100%' }}
+                                    value={quantity}
+                                    onChange={(event) => setQuantity(event.target.value)}
+                                />
+                                <Button onClick={handleSaveCoin}>Save Coin</Button>
+                            </Box>
+                        )}
+
+                        <Button onClick={handlePreviousPage}>Previous Page</Button>
+                        <Button onClick={handleNextPage}>Next Page</Button>
+                    </div>
                 )}
 
-                <Button onClick={handlePreviousPage}>Previous Page</Button>
-                <Button onClick={handleNextPage}>Next Page</Button>
-            </div>)}
-
-            <Button onClick={onClose}>Close Modal</Button>
-
+            </Box>
         </Box>
     );
 };
@@ -170,8 +176,6 @@ const styled = {
         transform: 'translate(-50%, -50%)',
         backgroundColor: '#252525',
         border: `1px solid #ebb94c`,
-        width: 800,
-        maxWidth: 1200,
         maxHeight: 1200,
     }
 };

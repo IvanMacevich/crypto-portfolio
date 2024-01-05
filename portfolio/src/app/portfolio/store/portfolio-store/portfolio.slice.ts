@@ -1,20 +1,21 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { StateStatus } from "../../../../types/base-state.type";
-import { CoinsState } from "../../types/coins-state.type";
-import { fetchCoin, fetchCoins } from "./portfolio.actions";
+import { PortfolioState } from "../../types/portfolio-state";
 import { COINS } from "../../constants/actions.constants";
-import { TickData, TickInfo } from "../../../../types/tick-info.type";
-import { TickList } from "../../../../types/tick-list.type";
+import { fetchCoin, fetchCoins } from "./portfolio.actions";
+import { TickData } from "../../../../types/tick-info.type";
 
-const initialState: CoinsState = {
+const initialState: PortfolioState = {
 	detail: [],
 	total: 0,
-	status: StateStatus.INIT,
-	error: null,
 	BTCPrice: 0,
+	ticksForUserData: [],
+	ticksData: { list: [], BTCPrice: 0 },
+	status: StateStatus.INIT,
+	error: null
 };
 
-const coinsSlice = createSlice({
+const portfolioSlice = createSlice({
 	name: COINS.DOMAIN,
 	initialState,
 	reducers: {},
@@ -29,27 +30,29 @@ const coinsSlice = createSlice({
 				state.status = StateStatus.SUCCESS;
 				state.BTCPrice = action.payload.BTCPrice;
 				state.detail = action.payload.list;
-				// state.detail = [...state.detail, ...action.payload.list]
 			}
 		);
 		builder.addCase(fetchCoins.rejected, (state, action) => {
 			state.status = StateStatus.ERROR;
 			state.error = action.payload;
 		});
-		builder.addCase(fetchCoin.pending, (state)=>{
+		builder.addCase(fetchCoin.pending, (state) => {
 			state.status = StateStatus.LOADING;
 			state.error = null;
-		})
-		builder.addCase(fetchCoin.fulfilled, (state, action: PayloadAction<TickData>)=>{
-			state.BTCPrice = action.payload.BTCPrice;
-			state.detail = action.payload.list;
-			state.status = StateStatus.SUCCESS;
-		})
-		builder.addCase(fetchCoin.rejected, (state, action)=>{
+		});
+		builder.addCase(
+			fetchCoin.fulfilled,
+			(state, action: PayloadAction<TickData>) => {
+				state.BTCPrice = action.payload.BTCPrice;
+				state.detail = action.payload.list;
+				state.status = StateStatus.SUCCESS;
+			}
+		);
+		builder.addCase(fetchCoin.rejected, (state, action) => {
 			state.status = StateStatus.ERROR;
 			state.error = action.payload;
-		})
+		});
 	}
 });
 
-export const { reducer: coinsListReducer } = coinsSlice;
+export const { reducer: portfolioReducer } = portfolioSlice;

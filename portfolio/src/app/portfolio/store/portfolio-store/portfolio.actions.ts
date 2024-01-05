@@ -1,12 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { TickList } from "../../../../types/tick-list.type";
-import { instance } from "../../../../config/api/axios.instance";
-import { COINS } from "../../constants/actions.constants";
 import {
 	TickData,
 	TickInfo,
 	TickInfoList
 } from "../../../../types/tick-info.type";
+import { instance } from "../../../../config/api/axios.instance";
+import { TickList } from "../../../../types/tick-list.type";
 
 export const fetchCoins = createAsyncThunk<
 	TickData,
@@ -66,14 +65,45 @@ export const fetchCoin = createAsyncThunk<
 	{ rejectValue: string }
 >("coins/fetchCoin", async ({ timeType, tick }, { rejectWithValue }) => {
 	try {
-		const responseInfo = await instance.post<TickInfoList>(
+		const responseOne = await instance.get(`/v1/indexer/brc20/${tick}/info`);
+        const responseInfo = await instance.post<TickInfoList>(
 			"/v3/market/brc20/auction/brc20_types",
 			{ timeType, ticks: [tick] }
 		);
 
-		if (responseInfo.status === 200) {
+		if (!responseOne.data.data) {
+			return (
+                {
+                    BTCPrice: responseInfo.data.data.BTCPrice,
+                    list: [],
+                }
+            );
+		}
 
-			return {BTCPrice: responseInfo.data.data.BTCPrice, list: responseInfo.data.data.list} || [];
+		if (responseInfo.status === 200) {
+			console.log(responseInfo.data.data.list);
+
+			if (responseInfo.data.data.list.length === 0) {
+				const tickInfo = {
+					tick,
+					curPrice: 0,
+					changePrice: 0,
+					btcVolume: 0
+				};
+
+                return (
+                    {
+                        BTCPrice: responseInfo.data.data.BTCPrice,
+                        list: [tickInfo],
+                    }
+                );
+			}
+			return (
+				{
+					BTCPrice: responseInfo.data.data.BTCPrice,
+					list: responseInfo.data.data.list
+				}
+			);
 		} else {
 			console.error("Failed to fetch coin info");
 			return rejectWithValue("Failed to fetch coin info");

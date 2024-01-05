@@ -35,6 +35,7 @@ const cryptoTableSlice = createSlice({
       state.status = StateStatus.ERROR;
       state.error = action.payload;
     });
+
   },
 });
 

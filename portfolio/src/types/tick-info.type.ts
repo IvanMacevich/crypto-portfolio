@@ -1,14 +1,19 @@
 export interface TickInfoList {
-  data: TickData;
+	data: TickData;
 }
 
 export interface TickData {
-  BTCPrice: number;
-  list: Array<TickInfo>;
+	BTCPrice: number;
+	list: Array<TickInfo>;
+}
+export interface TicksUserData {
+	list: Array<TickInfo>;
 }
 export interface TickInfo {
-  tick: string;
-  curPrice: number;
-  btcVolume: number;
-  changePrice: number;
+	tick: string;
+	buyingPrice?: number;
+	amount?: number;
+	curPrice: number;
+	changePrice: number;
+	btcVolume: number;
 }

@@ -10,7 +10,7 @@ import {
   where,
 } from "@firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { Tick } from "../../types/firestore.type";
+import { Tick } from "../../types/firestore-docs.type";
 const firebaseConfig = {
   apiKey: "AIzaSyDJuLbzJblIrRaTYDDKhtlgbkUqZh3RHm0",
   authDomain: "brc-20-53178.firebaseapp.com",
@@ -50,7 +50,7 @@ export const addOrUpdateTick = async (tick: Tick) => {
   }
 };
 
-export const getTicksByUserId = async (userId: any) => {
+export const getTicksByUserId = async (userId: string) => {
   try {
     const userRef = doc(db, "user", userId);
     const userDoc = await getDoc(userRef);

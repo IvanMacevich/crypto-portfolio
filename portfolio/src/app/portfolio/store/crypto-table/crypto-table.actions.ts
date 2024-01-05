@@ -13,7 +13,6 @@ export const fetchUserCoins = createAsyncThunk<
     const ticksData = await getTicksByUserId("f0gc5oHPjgT0vJJSq03P");
     const tickNames = ticksData?.map((ticksData) => ticksData.tick);
 
-    console.log(tickNames);
     const response = await instance.post<TickInfoList>(
       "/v3/market/brc20/auction/brc20_types",
       {
@@ -21,17 +20,18 @@ export const fetchUserCoins = createAsyncThunk<
         ticks: tickNames,
       }
     );
-
     if (response.status === 200) {
       const combinedData: TickUser[] | undefined = ticksData?.map((ticks) => {
-        console.log(ticks.tick);
+        console.log(response.data.data.list);
         const dynamicData = response.data.data.list.find(
           (d) => d.tick === ticks.tick
         );
+        console.log(dynamicData)
         if (dynamicData) {
           return {
             name: String(ticks.tick),
             buyingPrice: Number(ticks.buyingPrice),
+            amount: Number(ticks.amount),
             curPrice: dynamicData.curPrice,
             changePrice: dynamicData.changePrice,
           };
@@ -39,11 +39,11 @@ export const fetchUserCoins = createAsyncThunk<
         return {
           name: String(ticks.tick),
           buyingPrice: Number(ticks.buyingPrice),
+          amount: Number(ticks.amount),
           curPrice: 0,
           changePrice: 0,
         };
       });
-      console.log(combinedData);
       return combinedData!;
     } else {
       console.error("Failed to fetch coin info");
@@ -54,3 +54,5 @@ export const fetchUserCoins = createAsyncThunk<
     return rejectWithValue("Error while fetching coin info");
   }
 });
+
+
